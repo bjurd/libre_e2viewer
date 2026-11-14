@@ -20,6 +20,7 @@ local function ReceiveRefresh()
 	for i = 1, Count do
 		local SteamID = net.ReadString()
 		local Chip = net.ReadString()
+		local Entity = net.ReadEntity()
 
 		local DisplayName = SteamID
 		local Player = player.GetBySteamID(SteamID)
@@ -29,7 +30,13 @@ local function ReceiveRefresh()
 			DisplayName = Format("%s (%s)", Player:Nick(), Player:SteamID())
 		end
 
-		List:AddLine(DisplayName, Chip)
+		--- @class DListView_Line
+		local Line = List:AddLine(DisplayName, Chip)
+		Line.OnRightClick = function(self)
+			net.Start("libre_e2viewer")
+				net.WriteEntity(Entity)
+			net.SendToServer()
+		end
 	end
 end
 
@@ -59,6 +66,7 @@ local function MakeViewer()
 
 	--- @class DButton LuaLS aids
 	local Refresh = vgui.Create("DButton", Top)
+	Refresh:SetText("Refresh")
 	Refresh:Dock(RIGHT)
 	Refresh:SetWide(100)
 	Refresh.DoClick = RefreshViewer
